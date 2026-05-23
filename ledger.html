@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ledgr – Money Ledger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="app.js"></script>
+  <script defer src="ledger.js"></script>
+</head>
+<body class="app dark">
+  <header class="app-header nav-header">
+    <div class="nav-title">
+      <h1>Money Ledger</h1>
+      <p class="subtitle">Track gas, payouts, miles</p>
+    </div>
+    <nav class="top-nav">
+      <a href="ledger.html" class="nav-link active">Ledger</a>
+      <a href="trip-calculator.html" class="nav-link">Trip Calc</a>
+      <a href="index.html" class="nav-link small">Home</a>
+    </nav>
+  </header>
+
+  <main class="app-main">
+    <section class="card">
+      <h2>Add entry</h2>
+      <form id="ledger-form" class="form-grid">
+        <label>
+          <span>Date</span>
+          <input type="date" id="entry-date" required />
+        </label>
+
+        <label>
+          <span>Type</span>
+          <select id="entry-type" required>
+            <option value="uber">Uber payout</option>
+            <option value="gas">Gas</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Amount ($)</span>
+          <input type="number" id="entry-amount" step="0.01" required />
+        </label>
+
+        <label>
+          <span>Miles (optional)</span>
+          <input type="number" id="entry-miles" step="0.1" />
+        </label>
+
+        <label>
+          <span>Gallons (optional)</span>
+          <input type="number" id="entry-gallons" step="0.01" />
+        </label>
+
+        <label class="full">
+          <span>Notes (optional)</span>
+          <input type="text" id="entry-notes" />
+        </label>
+
+        <button type="submit" class="btn primary full">Add entry</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="label">Total Uber</span>
+          <span id="sum-uber" class="value">$0.00</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Total Gas</span>
+          <span id="sum-gas" class="value">$0.00</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Net (Uber − Gas − Maint)</span>
+          <span id="sum-net" class="value">$0.00</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Miles logged</span>
+          <span id="sum-miles" class="value">0</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Gallons logged</span>
+          <span id="sum-gallons" class="value">0</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">MPG (logged)</span>
+          <span id="sum-mpg" class="value">–</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Gas cost / mile</span>
+          <span id="sum-gas-per-mile" class="value">–</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Entries</h2>
+      <div class="table-wrapper">
+        <table class="data-table" id="ledger-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>$</th>
+              <th>Mi</th>
+              <th>Gal</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ledger-body">
+          </tbody>
+        </table>
+      </div>
+      <button id="clear-ledger" class="btn danger full">Clear all entries</button>
+    </section>
+  </main>
+</body>
+</html>
