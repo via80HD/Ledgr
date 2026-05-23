@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ledgr – Trip Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="app.js"></script>
+  <script defer src="tripcalc.js"></script>
+</head>
+<body class="app dark">
+  <header class="app-header nav-header">
+    <div class="nav-title">
+      <h1>Trip Calculator</h1>
+      <p class="subtitle">Estimate gas cost for a trip</p>
+    </div>
+    <nav class="top-nav">
+      <a href="ledger.html" class="nav-link">Ledger</a>
+      <a href="trip-calculator.html" class="nav-link active">Trip Calc</a>
+      <a href="index.html" class="nav-link small">Home</a>
+    </nav>
+  </header>
+
+  <main class="app-main">
+    <section class="card">
+      <h2>Trip details</h2>
+      <form id="trip-form" class="form-grid">
+        <label class="full">
+          <span>Start location</span>
+          <input type="text" id="trip-start" placeholder="e.g. Little Rock, AR" />
+        </label>
+
+        <label class="full">
+          <span>End location</span>
+          <input type="text" id="trip-end" placeholder="e.g. Hot Springs, AR" />
+        </label>
+
+        <label>
+          <span>Distance (miles)</span>
+          <input type="number" id="trip-distance" step="0.1" required />
+        </label>
+
+        <label>
+          <span>Estimated time (hours)</span>
+          <input type="number" id="trip-hours" step="0.1" placeholder="1.0" />
+        </label>
+
+        <label>
+          <span>Your MPG</span>
+          <input type="number" id="trip-mpg" step="0.1" required />
+        </label>
+
+        <label>
+          <span>Gas price ($/gal)</span>
+          <input type="number" id="trip-gas-price" step="0.01" required />
+        </label>
+
+        <label class="full">
+          <span>Uber payout (optional)</span>
+          <input type="number" id="trip-payout" step="0.01" placeholder="Leave blank if unknown" />
+        </label>
+
+        <button type="submit" class="btn primary full">Calculate</button>
+      </form>
+    </section>
+
+    <section class="card" id="trip-results" hidden>
+      <h2>Results</h2>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="label">One‑way distance</span>
+          <span id="res-distance" class="value">–</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Round‑trip distance</span>
+          <span id="res-distance-rt" class="value">–</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Gas used (one‑way)</span>
+          <span id="res-gallons" class="value">–</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Gas cost (one‑way)</span>
+          <span id="res-gas-cost" class="value">–</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Gas cost (round‑trip)</span>
+          <span id="res-gas-cost-rt" class="value">–</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Gas cost / mile</span>
+          <span id="res-gas-per-mile" class="value">–</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Est. time (one‑way)</span>
+          <span id="res-hours" class="value">–</span>
+        </div>
+      </div>
+
+      <div id="profit-section" class="profit-section" hidden>
+        <h3>Profit (based on payout)</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="label">Profit (one‑way)</span>
+            <span id="res-profit" class="value">–</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Profit / mile</span>
+            <span id="res-profit-per-mile" class="value">–</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Profit / hour</span>
+            <span id="res-profit-per-hour" class="value">–</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
