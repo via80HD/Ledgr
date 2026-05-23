@@ -1,14 +1,14 @@
 // ledger.js
 
-const STORAGE_KEY = "ledgr_entries_v1";
+const STORAGE_KEY = "ledgr_entries_v2";
+const TANK_SIZE = 20.5; // gallons
+const DEFAULT_MPG = 26; // used for first fill-up
 
 function loadEntries() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error("Failed to parse ledger storage", e);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
     return [];
   }
 }
@@ -18,124 +18,163 @@ function saveEntries(entries) {
 }
 
 function formatMoney(n) {
-  if (isNaN(n)) return "$0.00";
   return "$" + n.toFixed(2);
+}
+
+function showField(id, show) {
+  document.getElementById(id).classList.toggle("hidden", !show);
+}
+
+function updateFormFields() {
+  const type = document.getElementById("entry-type").value;
+
+  // Reset amount field wrapper
+  const amountField = document.getElementById("amount-field");
+  amountField.innerHTML = "";
+
+  if (type === "other") {
+    // Forced negative sign UI
+    amountField.innerHTML = `
+      <div class="neg-wrapper">
+        <span class="neg-prefix">- $</span>
+        <input type="number" id="entry-amount" step="0.01" />
+      </div>
+    `;
+  } else {
+    amountField.innerHTML = `
+      <input type="number" id="entry-amount" step="0.01" />
+    `;
+  }
+
+  // Gas fields
+  const isGas = type === "gas";
+  showField("ppg-wrapper", isGas);
+  showField("odo-wrapper", isGas);
+  showField("mte-wrapper", isGas);
+}
+
+function calculateMPG(entries) {
+  let totalMiles = 0;
+  let totalGallons = 0;
+  let lastOdo = null;
+  let lastMPG = DEFAULT_MPG;
+
+  entries.forEach((e) => {
+    if (e.type === "gas") {
+      if (lastOdo !== null) {
+        const miles = e.odo - lastOdo;
+        const remainingGallons = e.mte / lastMPG;
+        const gallonsAdded = TANK_SIZE - remainingGallons;
+
+        if (gallonsAdded > 0) {
+          const mpg = miles / gallonsAdded;
+          e.calcMPG = mpg;
+          totalMiles += miles;
+          totalGallons += gallonsAdded;
+          lastMPG = mpg;
+        }
+      }
+      lastOdo = e.odo;
+    }
+  });
+
+  return { totalMiles, totalGallons };
 }
 
 function render(entries) {
   const tbody = document.getElementById("ledger-body");
   tbody.innerHTML = "";
 
-  let sumUber = 0;
+  let sumPayout = 0;
   let sumGas = 0;
-  let sumMaint = 0;
-  let sumMiles = 0;
-  let sumGallons = 0;
+  let sumOther = 0;
 
-  entries.forEach((entry, idx) => {
+  entries.forEach((e, idx) => {
+    if (e.type === "payout") sumPayout += e.amount;
+    if (e.type === "gas") sumGas += e.amount;
+    if (e.type === "other") sumOther += e.amount;
+
     const tr = document.createElement("tr");
 
-    const tdDate = document.createElement("td");
-    tdDate.textContent = entry.date || "";
-    tr.appendChild(tdDate);
+    tr.innerHTML = `
+      <td>${e.date}</td>
+      <td>${e.type}</td>
+      <td>${formatMoney(e.amount)}</td>
+      <td>${e.odo ?? ""}</td>
+      <td>${e.mte ?? ""}</td>
+      <td>${e.calcMPG ? e.calcMPG.toFixed(1) : ""}</td>
+      <td>${e.notes || ""}</td>
+      <td><button data-del="${idx}">X</button></td>
+    `;
 
-    const tdType = document.createElement("td");
-    tdType.textContent = entry.type;
-    tr.appendChild(tdType);
+    tbody.appendChild(tr);
+  });
 
-    const tdAmount = document.createElement("td");
-    tdAmount.textContent = formatMoney(entry.amount);
-    tr.appendChild(tdAmount);
+  // MPG summary
+  const { totalMiles, totalGallons } = calculateMPG(entries);
+  const mpg = totalGallons > 0 ? totalMiles / totalGallons : null;
+  const gasPerMile = totalMiles > 0 ? sumGas / totalMiles : null;
 
-    const tdMiles = document.createElement("td");
-    tdMiles.textContent = entry.miles ? entry.miles.toFixed(1) : "";
-    tr.appendChild(tdMiles);
+  document.getElementById("sum-payout").textContent = formatMoney(sumPayout);
+  document.getElementById("sum-gas").textContent = formatMoney(sumGas);
+  document.getElementById("sum-other").textContent = formatMoney(sumOther);
+  document.getElementById("sum-net").textContent = formatMoney(sumPayout + sumOther - sumGas);
 
-    const tdGallons = document.createElement("td");
-    tdGallons.textContent = entry.gallons ? entry.gallons.toFixed(2) : "";
-    tr.appendChild(tdGallons);
+  document.getElementById("sum-miles").textContent = totalMiles.toFixed(1);
+  document.getElementById("sum-gallons").textContent = totalGallons.toFixed(2);
+  document.getElementById("sum-mpg").textContent = mpg ? mpg.toFixed(1) : "–";
+  document.getElementById("sum-gas-per-mile").textContent = gasPerMile ? "$" + gasPerMile.toFixed(3) : "–";
 
-    const tdNotes = document.createElement("td");
-    tdNotes.textContent = entry.notes || "";
-    tr.appendChild(tdNotes);
-
-    const tdActions = document.createElement("td");
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "X";
-    delBtn.addEventListener("click", () => {
+  // Delete buttons
+  document.querySelectorAll("[data-del]").forEach((btn) => {
+    btn.addEventListener("click", () => {
       const updated = entries.slice();
-      updated.splice(idx, 1);
+      updated.splice(btn.dataset.del, 1);
       saveEntries(updated);
       render(updated);
     });
-    tdActions.appendChild(delBtn);
-    tr.appendChild(tdActions);
-
-    tbody.appendChild(tr);
-
-    // accumulate
-    if (entry.type === "uber") sumUber += entry.amount;
-    if (entry.type === "gas") sumGas += entry.amount;
-    if (entry.type === "maintenance") sumMaint += entry.amount;
-    if (entry.miles) sumMiles += entry.miles;
-    if (entry.gallons) sumGallons += entry.gallons;
   });
-
-  const sumNet = sumUber - sumGas - sumMaint;
-  const mpg = sumGallons > 0 ? sumMiles / sumGallons : null;
-  const gasPerMile = sumMiles > 0 ? sumGas / sumMiles : null;
-
-  document.getElementById("sum-uber").textContent = formatMoney(sumUber);
-  document.getElementById("sum-gas").textContent = formatMoney(sumGas);
-  document.getElementById("sum-net").textContent = formatMoney(sumNet);
-  document.getElementById("sum-miles").textContent = sumMiles.toFixed(1);
-  document.getElementById("sum-gallons").textContent = sumGallons.toFixed(2);
-  document.getElementById("sum-mpg").textContent = mpg ? mpg.toFixed(1) : "–";
-  document.getElementById("sum-gas-per-mile").textContent = gasPerMile
-    ? "$" + gasPerMile.toFixed(3)
-    : "–";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const entries = loadEntries();
   render(entries);
 
-  const form = document.getElementById("ledger-form");
-  form.addEventListener("submit", (e) => {
+  updateFormFields();
+  document.getElementById("entry-type").addEventListener("change", updateFormFields);
+
+  document.getElementById("ledger-form").addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const date = document.getElementById("entry-date").value;
     const type = document.getElementById("entry-type").value;
-    const amount = parseFloat(document.getElementById("entry-amount").value || "0");
-    const miles = parseFloat(document.getElementById("entry-miles").value || "0");
-    const gallons = parseFloat(document.getElementById("entry-gallons").value || "0");
+    const date = document.getElementById("entry-date").value;
     const notes = document.getElementById("entry-notes").value.trim();
 
-    if (!date || !type || isNaN(amount)) {
-      alert("Date, type, and amount are required.");
-      return;
+    let amount = parseFloat(document.getElementById("entry-amount").value || "0");
+
+    if (type === "other") amount = -Math.abs(amount);
+
+    const entry = { type, date, amount, notes };
+
+    if (type === "gas") {
+      entry.ppg = parseFloat(document.getElementById("entry-ppg").value || "0");
+      entry.odo = parseFloat(document.getElementById("entry-odo").value || "0");
+      entry.mte = parseFloat(document.getElementById("entry-mte").value || "0");
     }
 
-    const newEntry = {
-      date,
-      type,
-      amount,
-      miles: isNaN(miles) ? 0 : miles,
-      gallons: isNaN(gallons) ? 0 : gallons,
-      notes,
-    };
-
     const updated = loadEntries();
-    updated.push(newEntry);
+    updated.push(entry);
     saveEntries(updated);
     render(updated);
-    form.reset();
+
+    e.target.reset();
+    updateFormFields();
   });
 
-  const clearBtn = document.getElementById("clear-ledger");
-  clearBtn.addEventListener("click", () => {
-    if (!confirm("Clear all entries?")) return;
-    saveEntries([]);
-    render([]);
+  document.getElementById("clear-ledger").addEventListener("click", () => {
+    if (confirm("Clear all entries?")) {
+      saveEntries([]);
+      render([]);
+    }
   });
 });
