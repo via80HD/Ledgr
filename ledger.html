@@ -1,86 +1,102 @@
-<form id="ledger-form" class="form-grid">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Money Ledger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
 
-  <!-- TYPE SELECTOR -->
-  <label>
-    <span>Type</span>
-    <select id="entry-type" required>
-      <option value="payout">Payout</option>
-      <option value="other">Other</option>
-      <option value="gas">Gas</option>
-    </select>
-  </label>
+<body class="app dark">
 
-  <!-- PAYOUT FIELDS -->
-  <div id="payout-fields">
-    <label>
-      <span>Date</span>
-      <input type="date" id="payout-date" required>
-    </label>
+  <header class="app-header">
+    <h1>Money Ledger</h1>
+  </header>
 
-    <label class="full">
-      <span>Amount</span>
-      <input type="number" id="payout-amount" step="0.01" required>
-    </label>
+  <main class="app-main">
 
-    <label class="full">
-      <span>Notes</span>
-      <input type="text" id="payout-notes">
-    </label>
-  </div>
+    <form id="ledger-form" class="form-grid">
 
-  <!-- OTHER FIELDS -->
-  <div id="other-fields" class="hidden">
-    <label>
-      <span>Date</span>
-      <input type="date" id="other-date" required>
-    </label>
+      <!-- TYPE SELECTOR -->
+      <label>
+        <span>Type</span>
+        <select id="entry-type" required>
+          <option value="payout">Payout</option>
+          <option value="other">Other</option>
+          <option value="gas">Gas</option>
+        </select>
+      </label>
 
-    <label class="full">
-      <span>Amount (negative)</span>
-      <input type="number" id="other-amount" step="0.01" required>
-    </label>
+      <!-- PAYOUT FIELDS -->
+      <div id="payout-fields">
+        <label>
+          <span>Date</span>
+          <input type="date" id="payout-date" required>
+        </label>
 
-    <label class="full">
-      <span>Notes</span>
-      <input type="text" id="other-notes">
-    </label>
-  </div>
+        <label class="full">
+          <span>Amount</span>
+          <input type="number" id="payout-amount" step="0.01" required>
+        </label>
 
-  <!-- GAS FIELDS -->
-  <div id="gas-fields" class="hidden">
-    <label>
-      <span>Total Cost</span>
-      <input type="number" id="gas-total" step="0.01" required>
-    </label>
+        <label class="full">
+          <span>Notes</span>
+          <input type="text" id="payout-notes">
+        </label>
+      </div>
 
-    <label>
-      <span>PPG</span>
-      <input type="number" id="gas-ppg" step="0.01" required>
-    </label>
+      <!-- OTHER FIELDS -->
+      <div id="other-fields" class="hidden">
+        <label>
+          <span>Date</span>
+          <input type="date" id="other-date" required>
+        </label>
 
-    <label>
-      <span>Odometer</span>
-      <input type="number" id="gas-odo" step="1" required>
-    </label>
+        <label class="full">
+          <span>Amount (negative)</span>
+          <input type="number" id="other-amount" step="0.01" required>
+        </label>
 
-    <label>
-      <span>MTE</span>
-      <input type="number" id="gas-mte" step="1" required>
-    </label>
+        <label class="full">
+          <span>Notes</span>
+          <input type="text" id="other-notes">
+        </label>
+      </div>
 
-    <label class="full">
-      <span>Notes</span>
-      <input type="text" id="gas-notes">
-    </label>
-  </div>
+      <!-- GAS FIELDS -->
+      <div id="gas-fields" class="hidden">
+        <label>
+          <span>Total Cost</span>
+          <input type="number" id="gas-total" step="0.01" required>
+        </label>
 
-  <button type="submit" class="btn primary full">Add Entry</button>
-</form>
+        <label>
+          <span>PPG</span>
+          <input type="number" id="gas-ppg" step="0.01" required>
+        </label>
 
-<button type="submit" class="btn primary full">Add Entry</button>
-</form>
+        <label>
+          <span>Odometer</span>
+          <input type="number" id="gas-odo" step="1" required>
+        </label>
 
-<script defer src="ledger-v2.js"></script>
+        <label>
+          <span>MTE</span>
+          <input type="number" id="gas-mte" step="1" required>
+        </label>
+
+        <label class="full">
+          <span>Notes</span>
+          <input type="text" id="gas-notes">
+        </label>
+      </div>
+
+      <button type="submit" class="btn primary full">Add Entry</button>
+    </form>
+
+  </main>
+
+  <script defer src="ledger-v2.js"></script>
 
 </body>
 </html>
