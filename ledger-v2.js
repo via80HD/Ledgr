@@ -37,6 +37,7 @@ document.getElementById("ledger-form").addEventListener("submit", (e) => {
   }
 
   if (type === "gas") {
+    entry.date = document.getElementById("gas-date").value;
     entry.total = parseFloat(document.getElementById("gas-total").value);
     entry.ppg = parseFloat(document.getElementById("gas-ppg").value);
     entry.odo = parseInt(document.getElementById("gas-odo").value);
