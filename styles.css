@@ -56,7 +56,9 @@ body.app.dark {
   justify-content: space-between;
   gap: 0.75rem;
 }
-
+.hidden {
+  display: none;
+}
 .nav-title {
   flex: 1;
 }
