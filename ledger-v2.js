@@ -51,7 +51,11 @@ document.getElementById("ledger-form").addEventListener("submit", (e) => {
 
 // --- SAVE TO LOCAL STORAGE ---
 function saveEntry(entry) {
-  const data = JSON.parse(localStorage.getItem("ledgerData") || "[]");
-  data.push(entry);
-  localStorage.setItem("ledgerData", JSON.stringify(data));
+  fetch("https://script.google.com/macros/s/AKfycbzD6F3865YTuYFS4qCKXCoe3yKJmXcNQoMIO-XNWMcKalAXQfZHHtGTEtpZHRvH1sHF/exec", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(entry)
+  })
+  .then(() => console.log("Saved to Google Sheets"))
+  .catch(err => console.error("Error:", err));
 }
