@@ -1,3 +1,15 @@
+// --- UI MESSAGE BAR ---
+function showMessage(text, type = "success") {
+  const bar = document.getElementById("message-bar");
+  bar.textContent = text;
+  bar.className = type; // sets class to "success" or "error"
+  bar.classList.remove("hidden");
+
+  setTimeout(() => {
+    bar.classList.add("hidden");
+  }, 3000);
+}
+
 // --- TYPE SWITCHER ---
 const typeSelect = document.getElementById("entry-type");
 
@@ -50,13 +62,20 @@ document.getElementById("ledger-form").addEventListener("submit", (e) => {
   typeSelect.dispatchEvent(new Event("change"));
 });
 
-// --- SEND TO GOOGLE SHEETS ---
+// --- SEND TO GOOGLE SHEETS WITH UI FEEDBACK ---
 function saveEntry(entry) {
   fetch("https://script.google.com/macros/s/AKfycbzD6F3865YTuYFS4qCKXCoe3yKJmXcNQoMIO-XNWMcKalAXQfZHHtGTEtpZHRvH1sHF/exec", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(entry)
   })
-  .then(() => console.log("Saved to Google Sheets"))
-  .catch(err => console.error("Error:", err));
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Server returned " + response.status);
+    }
+    showMessage("Entry saved successfully!", "success");
+  })
+  .catch(err => {
+    showMessage("Error saving entry: " + err.message, "error");
+  });
 }
