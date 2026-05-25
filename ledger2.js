@@ -2,7 +2,7 @@
 function showMessage(text, type = "success") {
   const bar = document.getElementById("message-bar");
   bar.textContent = text;
-  bar.className = ""; // reset classes
+  bar.className = "";
   bar.classList.add(type);
   bar.classList.remove("hidden");
 
@@ -11,11 +11,11 @@ function showMessage(text, type = "success") {
   }, 3000);
 }
 
-// --- SAFE GETTER (prevents crashes on missing fields) ---
+// --- SAFE GETTER ---
 function getValue(id, parser = (v) => v) {
   const el = document.getElementById(id);
-  if (!el) return null; // field doesn't exist for this type
-  if (el.value === "") return null; // empty is allowed
+  if (!el) return null;
+  if (el.value === "") return null;
   try {
     return parser(el.value);
   } catch {
@@ -77,11 +77,11 @@ document.getElementById("ledger-form").addEventListener("submit", (e) => {
   typeSelect.dispatchEvent(new Event("change"));
 });
 
-// --- SEND TO GOOGLE SHEETS WITH FULL ERROR HANDLING ---
+// --- CORS-SAFE FETCH (text/plain bypass) ---
 function saveEntry(entry) {
   fetch("https://script.google.com/macros/s/AKfycbzD6F3865YTuYFS4qCKXCoe3yKJmXcNQoMIO-XNWMcKalAXQfZHHtGTEtpZHRvH1sHF/exec", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify(entry)
   })
   .then(response => {
