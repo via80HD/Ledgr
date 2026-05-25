@@ -2,12 +2,25 @@
 function showMessage(text, type = "success") {
   const bar = document.getElementById("message-bar");
   bar.textContent = text;
-  bar.className = type; // sets class to "success" or "error"
+  bar.className = ""; // reset classes
+  bar.classList.add(type);
   bar.classList.remove("hidden");
 
   setTimeout(() => {
     bar.classList.add("hidden");
   }, 3000);
+}
+
+// --- SAFE GETTER (prevents crashes on missing fields) ---
+function getValue(id, parser = (v) => v) {
+  const el = document.getElementById(id);
+  if (!el) return null; // field doesn't exist for this type
+  if (el.value === "") return null; // empty is allowed
+  try {
+    return parser(el.value);
+  } catch {
+    return null;
+  }
 }
 
 // --- TYPE SWITCHER ---
@@ -37,32 +50,34 @@ document.getElementById("ledger-form").addEventListener("submit", (e) => {
   let entry = { type };
 
   if (type === "payout") {
-    entry.date = document.getElementById("payout-date").value;
-    entry.amount = parseFloat(document.getElementById("payout-amount").value);
-    entry.notes = document.getElementById("payout-notes").value;
+    entry.date = getValue("payout-date");
+    entry.amount = getValue("payout-amount", parseFloat);
+    entry.notes = getValue("payout-notes");
   }
 
   if (type === "other") {
-    entry.date = document.getElementById("other-date").value;
-    entry.amount = -Math.abs(parseFloat(document.getElementById("other-amount").value));
-    entry.notes = document.getElementById("other-notes").value;
+    entry.date = getValue("other-date");
+    const amt = getValue("other-amount", parseFloat);
+    entry.amount = amt !== null ? -Math.abs(amt) : null;
+    entry.notes = getValue("other-notes");
   }
 
   if (type === "gas") {
-    entry.date = document.getElementById("gas-date").value;
-    entry.total = parseFloat(document.getElementById("gas-total").value);
-    entry.ppg = parseFloat(document.getElementById("gas-ppg").value);
-    entry.odo = parseInt(document.getElementById("gas-odo").value);
-    entry.mte = parseInt(document.getElementById("gas-mte").value);
-    entry.notes = document.getElementById("gas-notes").value;
+    entry.date = getValue("gas-date");
+    entry.total = getValue("gas-total", parseFloat);
+    entry.ppg = getValue("gas-ppg", parseFloat);
+    entry.odo = getValue("gas-odo", parseInt);
+    entry.mte = getValue("gas-mte", parseInt);
+    entry.notes = getValue("gas-notes");
   }
 
   saveEntry(entry);
+
   e.target.reset();
   typeSelect.dispatchEvent(new Event("change"));
 });
 
-// --- SEND TO GOOGLE SHEETS WITH UI FEEDBACK ---
+// --- SEND TO GOOGLE SHEETS WITH FULL ERROR HANDLING ---
 function saveEntry(entry) {
   fetch("https://script.google.com/macros/s/AKfycbzD6F3865YTuYFS4qCKXCoe3yKJmXcNQoMIO-XNWMcKalAXQfZHHtGTEtpZHRvH1sHF/exec", {
     method: "POST",
