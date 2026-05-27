@@ -10,14 +10,23 @@
 <body class="app dark">
 
   <header class="app-header">
-    <h1>Money Ledger</h1>
+    <div class="nav-header">
+      <div class="nav-title">
+        <h1>Money Ledger</h1>
+      </div>
+      
+      <nav class="top-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="ledger2.html" class="nav-link active">Ledger</a>
+        <a href="trip-calculator.html" class="nav-link">Trip Calc</a>
+      </nav>
+    </div>
   </header>
 
   <main class="app-main">
 
     <form id="ledger-form" class="form-grid">
 
-      <!-- TYPE SELECTOR -->
       <label>
         <span>Type</span>
         <select id="entry-type" required>
@@ -27,7 +36,6 @@
         </select>
       </label>
 
-      <!-- PAYOUT FIELDS (FIXED: now hidden by default) -->
       <div id="payout-fields" class="hidden">
         <label>
           <span>Date</span>
@@ -45,7 +53,6 @@
         </label>
       </div>
 
-      <!-- OTHER FIELDS -->
       <div id="other-fields" class="hidden">
         <label>
           <span>Date</span>
@@ -63,7 +70,6 @@
         </label>
       </div>
 
-      <!-- GAS FIELDS -->
       <div id="gas-fields" class="hidden">
         <label>
           <span>Date</span>
@@ -103,6 +109,6 @@
 
   </main>
 
-  <script defer src="ledger2.js?v=1"></script>
+  <script defer src="ledger2.js?v=2"></script>
 </body>
 </html>
