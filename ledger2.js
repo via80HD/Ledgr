@@ -1,6 +1,7 @@
 // --- UI MESSAGE BAR ---
 function showMessage(text, type = "success") {
   const bar = document.getElementById("message-bar");
+  if (!bar) return;
   bar.textContent = text;
   bar.className = "";
   bar.classList.add(type);
@@ -14,33 +15,47 @@ function showMessage(text, type = "success") {
 // --- SAFE GETTER ---
 function getValue(id, parser = (v) => v) {
   const el = document.getElementById(id);
-  if (!el) return "";
-  if (el.value === "") return "";
+  if (!el) return null;
+  if (el.value === "") return null;
   try {
     return parser(el.value);
   } catch {
-    return "";
+    return null;
   }
 }
 
-// --- TYPE SWITCHER ---
+// --- TYPE SWITCHER WITH DYNAMIC REQUIRED ATTRIBUTES ---
 const typeSelect = document.getElementById("entry-type");
 
-typeSelect.addEventListener("change", () => {
-  document.getElementById("payout-fields").classList.add("hidden");
-  document.getElementById("other-fields").classList.add("hidden");
-  document.getElementById("gas-fields").classList.add("hidden");
+function updateRequiredFields() {
+  const selectedType = typeSelect.value;
+  const sections = ["payout", "other", "gas"];
 
-  if (typeSelect.value === "payout") {
-    document.getElementById("payout-fields").classList.remove("hidden");
-  }
-  if (typeSelect.value === "other") {
-    document.getElementById("other-fields").classList.remove("hidden");
-  }
-  if (typeSelect.value === "gas") {
-    document.getElementById("gas-fields").classList.remove("hidden");
-  }
-});
+  sections.forEach((type) => {
+    const container = document.getElementById(`${type}-fields`);
+    if (!container) return;
+
+    if (type === selectedType) {
+      container.classList.remove("hidden");
+      // Add 'required' to visible fields (ignoring notes)
+      container.querySelectorAll("input:not([id$='notes'])").forEach(input => {
+        input.required = true;
+      });
+    } else {
+      container.classList.add("hidden");
+      // Completely strip 'required' from hidden fields so the browser doesn't block submission
+      container.querySelectorAll("input").forEach(input => {
+        input.required = false;
+      });
+    }
+  });
+}
+
+// Listen for dropdown changes
+typeSelect.addEventListener("change", updateRequiredFields);
+
+// Run right away on page load to initialize fields correctly
+updateRequiredFields();
 
 // --- FORM SUBMISSION ---
 document.getElementById("ledger-form").addEventListener("submit", (e) => {
@@ -53,21 +68,13 @@ document.getElementById("ledger-form").addEventListener("submit", (e) => {
     entry.date = getValue("payout-date");
     entry.amount = getValue("payout-amount", parseFloat);
     entry.notes = getValue("payout-notes");
-    entry.total = "";
-    entry.ppg = "";
-    entry.odo = "";
-    entry.mte = "";
   }
 
   if (type === "other") {
     entry.date = getValue("other-date");
     const amt = getValue("other-amount", parseFloat);
-    entry.amount = amt !== "" ? -Math.abs(amt) : "";
+    entry.amount = amt !== null ? -Math.abs(amt) : null;
     entry.notes = getValue("other-notes");
-    entry.total = "";
-    entry.ppg = "";
-    entry.odo = "";
-    entry.mte = "";
   }
 
   if (type === "gas") {
@@ -77,33 +84,32 @@ document.getElementById("ledger-form").addEventListener("submit", (e) => {
     entry.odo = getValue("gas-odo", parseInt);
     entry.mte = getValue("gas-mte", parseInt);
     entry.notes = getValue("gas-notes");
-    entry.amount = "";
   }
 
+  // Fire off the save request
   saveEntry(entry);
 
+  // Reset the form fields cleanly
   e.target.reset();
-  typeSelect.dispatchEvent(new Event("change"));
+  
+  // Force the UI script to hide unneeded tabs and recalculate required attributes
+  updateRequiredFields();
 });
 
-// --- GOOGLE FORMS BACKEND (NO CORS, ALWAYS WORKS) ---
+// --- CORS-SAFE FETCH (text/plain bypass) ---
 function saveEntry(entry) {
-  const formData = new FormData();
-
-  formData.append("entry.1877171559", entry.type);
-  formData.append("entry.1937408394", entry.date);
-  formData.append("entry.568811173", entry.amount);
-  formData.append("entry.1162546458", entry.notes);
-  formData.append("entry.502439932", entry.total);
-  formData.append("entry.1831913986", entry.ppg);
-  formData.append("entry.1184210259", entry.odo);
-  formData.append("entry.1013258718", entry.mte);
-
-  fetch("https://docs.google.com/forms/d/e/1FAIpQLSetOjoFF9-AalCI2qkcaTZdInjPox6C2FKEumHHUvp26D97OQ/formResponse", {
+  fetch("https://script.google.com/macros/s/AKfycbxoQSbQvu73jvbeuLtmZ3yegYI_zUfMHo_wMOJJwDdaSgABD6qGHCMf411NRpVGLS31/exec", {
     method: "POST",
-    mode: "no-cors",
-    body: formData
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(entry)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Server returned " + response.status);
+    }
+    showMessage("Entry saved successfully!", "success");
+  })
+  .catch(err => {
+    showMessage("Error saving entry: " + err.message, "error");
   });
-
-  showMessage("Entry saved!", "success");
 }
