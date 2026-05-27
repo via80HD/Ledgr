@@ -98,7 +98,7 @@ document.getElementById("ledger-form").addEventListener("submit", (e) => {
 
 // --- CORS-SAFE FETCH (text/plain bypass) ---
 function saveEntry(entry) {
-  fetch("https://script.google.com/macros/s/AKfycbxvak9wvBy92K-Evu4eVFxFT4ptIbD17ejB_ApTTpZwFppS4z2848XFoqagL3Wt8eWn/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbxoMYDQYpF0UocYJ8OEPehotOfc36NMgwPAxAKZnIqjkZMd7aIlJoqm_du2qKMyhB8/exec", {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify(entry)
