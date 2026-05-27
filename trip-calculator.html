@@ -5,20 +5,22 @@
   <title>Ledgr – Trip Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
-  <script defer src="app.js"></script>
-  <script defer src="tripcalc.js"></script>
 </head>
 <body class="app dark">
-  <header class="app-header nav-header">
-    <div class="nav-title">
-      <h1>Trip Calculator</h1>
-      <p class="subtitle">Estimate gas cost for a trip</p>
+
+  <header class="app-header">
+    <div class="nav-header">
+      <div class="nav-title">
+        <h1>Trip Calculator</h1>
+        <p class="subtitle">Estimate gas cost for a trip</p>
+      </div>
+      
+      <nav class="top-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="ledger2.html" class="nav-link">Ledger</a>
+        <a href="trip-calculator.html" class="nav-link active">Trip Calc</a>
+      </nav>
     </div>
-    <nav class="top-nav">
-      <a href="ledger.html" class="nav-link">Ledger</a>
-      <a href="trip-calculator.html" class="nav-link active">Trip Calc</a>
-      <a href="index.html" class="nav-link small">Home</a>
-    </nav>
   </header>
 
   <main class="app-main">
@@ -27,32 +29,22 @@
       <form id="trip-form" class="form-grid">
         <label class="full">
           <span>Start location</span>
-          <input type="text" id="trip-start" placeholder="e.g. Little Rock, AR" />
+          <input type="text" id="trip-start" placeholder="e.g. Little Rock, AR" required />
         </label>
 
         <label class="full">
           <span>End location</span>
-          <input type="text" id="trip-end" placeholder="e.g. Hot Springs, AR" />
-        </label>
-
-        <label>
-          <span>Distance (miles)</span>
-          <input type="number" id="trip-distance" step="0.1" required />
-        </label>
-
-        <label>
-          <span>Estimated time (hours)</span>
-          <input type="number" id="trip-hours" step="0.1" placeholder="1.0" />
+          <input type="text" id="trip-end" placeholder="e.g. Hot Springs, AR" required />
         </label>
 
         <label>
           <span>Your MPG</span>
-          <input type="number" id="trip-mpg" step="0.1" required />
+          <input type="number" id="trip-mpg" step="0.1" placeholder="e.g. 25" required />
         </label>
 
         <label>
           <span>Gas price ($/gal)</span>
-          <input type="number" id="trip-gas-price" step="0.01" required />
+          <input type="number" id="trip-gas-price" step="0.01" placeholder="e.g. 3.25" required />
         </label>
 
         <label class="full">
@@ -60,9 +52,11 @@
           <input type="number" id="trip-payout" step="0.01" placeholder="Leave blank if unknown" />
         </label>
 
-        <button type="submit" class="btn primary full">Calculate</button>
+        <button type="submit" class="btn primary full" id="calc-btn">Calculate Trip Cost</button>
       </form>
     </section>
+
+    <div id="calc-message" class="hidden">Calculating driving route...</div>
 
     <section class="card" id="trip-results" hidden>
       <h2>Results</h2>
@@ -116,5 +110,7 @@
       </div>
     </section>
   </main>
+
+  <script defer src="tripcalc.js?v=1"></script>
 </body>
 </html>
